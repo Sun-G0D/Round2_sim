@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invest & Expand | IMC Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0f13;
+            --card: #13161c;
+            --border: #1e2129;
+            --text: #e2e4e9;
+            --muted: #8a8f98;
+            --dim: #5a6170;
+            --blue: #7eb8f7;
+            --green: #59d9a4;
+            --orange: #f0a55e;
+            --red: #ff4d4f;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            margin: 0;
+            padding: 24px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container { max-width: 500px; width: 100%; }
+
+        header { text-align: center; margin-bottom: 32px; }
+        header span { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #4a5568; font-weight: 600; }
+        header h1 {
+            font-family: 'Instrument Serif', serif; font-size: 32px; font-weight: 400; margin: 0 0 4px;
+            background: linear-gradient(135deg, var(--text), var(--blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .card { background: var(--card); border-radius: 16px; padding: 24px 20px; border: 1px solid var(--border); margin-bottom: 16px; }
+
+        /* Slider Styles */
+        .slider-group { margin-bottom: 20px; }
+        .slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+        .slider-label { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+        .slider-val { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; line-height: 1; }
+
+        .slider-container { position: relative; height: 36px; display: flex; align-items: center; }
+        .slider-track { position: absolute; left: 0; right: 0; height: 6px; border-radius: 3px; background: #1a1d23; }
+        .slider-fill { position: absolute; left: 0; height: 6px; border-radius: 3px; transition: width 0.1s; }
+
+        input[type=range] {
+            position: absolute; width: 100%; height: 36px; opacity: 0; cursor: pointer; margin: 0; z-index: 2;
+        }
+
+        .slider-thumb {
+            position: absolute; width: 20px; height: 20px; border-radius: 50%;
+            border: 3px solid #0d0f13; transition: left 0.1s; pointer-events: none; z-index: 1;
+        }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .stat-box { background: var(--card); border-radius: 12px; padding: 14px 16px; border: 1px solid var(--border); }
+        .stat-label { font-size: 11px; color: var(--dim); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+        .stat-val { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; }
+
+        /* Chart */
+        .chart-container { height: 100px; display: flex; align-items: flex-end; gap: 4px; margin-bottom: 8px; }
+        .bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.3s ease; border: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
+
+        table { width: 100%; border-collapse: collapse; font-family: 'Space Mono', monospace; font-size: 12px; }
+        th { font-family: 'DM Sans'; font-size: 10px; color: var(--dim); text-align: right; padding: 8px; border-bottom: 1px solid var(--border); }
+        td { padding: 8px; text-align: right; border-bottom: 1px solid #1a1d23; }
+
+        .formula { font-family: 'Space Mono', monospace; font-size: 10px; color: #3d4250; line-height: 1.8; margin-top: 16px; padding: 12px 16px; border-radius: 12px; background: #0f1116; border: 1px solid #1a1d23; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <span>IMC Prosperity 4</span>
+        <h1>Invest & Expand</h1>
+        <div style="font-size: 13px; color: var(--dim)">Budget Allocation Simulator</div>
+    </header>
+
+    <div class="card">
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">◈ Research</span>
+                <span class="slider-val" id="val-r" style="color: var(--blue)">23%</span>
+            </div>
+            <div class="slider-container">
+                <div class="slider-track"></div>
+                <div id="fill-r" class="slider-fill" style="background: var(--blue); width: 23%;"></div>
+                <input type="range" id="input-r" min="0" max="100" value="23">
+                <div id="thumb-r" class="slider-thumb" style="background: var(--blue); left: calc(23% - 10px);"></div>
+            </div>
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">◇ Scale</span>
+                <span class="slider-val" id="val-s" style="color: var(--green)">77%</span>
+            </div>
+            <div class="slider-container">
+                <div class="slider-track"></div>
+                <div id="fill-s" class="slider-fill" style="background: var(--green); width: 77%;"></div>
+                <input type="range" id="input-s" min="0" max="100" value="77">
+                <div id="thumb-s" class="slider-thumb" style="background: var(--green); left: calc(77% - 10px);"></div>
+            </div>
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">△ Speed</span>
+                <span class="slider-val" id="val-sp" style="color: var(--orange)">0%</span>
+            </div>
+            <div class="slider-container">
+                <div class="slider-track"></div>
+                <div id="fill-sp" class="slider-fill" style="background: var(--orange); width: 0%;"></div>
+                <input type="range" id="input-sp" min="0" max="100" value="0">
+                <div id="thumb-sp" class="slider-thumb" style="background: var(--orange); left: calc(0% - 10px);"></div>
+            </div>
+        </div>
+
+        <div id="budget-warning" style="display: flex; justify-content: space-between; padding: 12px 14px; border-radius: 10px; background: #1a1d23; border: 1px solid #22252d;">
+            <div>
+                <div class="stat-label">Total Allocated</div>
+                <span id="total-pct" style="font-family: 'Space Mono'; font-size: 20px; font-weight: 700;">100%</span>
+            </div>
+            <div style="text-align: right;">
+                <div class="stat-label">Budget Used</div>
+                <span id="budget-used" style="font-family: 'Space Mono'; font-size: 16px; font-weight: 700; color: var(--muted);">50,000</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-label">Research Output</div>
+            <div id="stat-res" class="stat-val" style="color: var(--blue)">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Scale Multiplier</div>
+            <div id="stat-scale" class="stat-val" style="color: var(--green)">0.00×</div>
+        </div>
+    </div>
+
+    <div class="card" id="chart-card">
+        <div class="slider-label" style="margin-bottom: 16px;">Net PnL by Speed Ranking</div>
+        <div class="chart-container" id="chart-bars"></div>
+        <div style="display: flex; justify-content: space-around; font-family: 'Space Mono'; font-size: 11px; color: var(--orange); font-weight: 700;">
+            <span>0.9</span><span>0.8</span><span>0.7</span><span>0.6</span><span>0.5</span><span>0.4</span><span>0.3</span><span>0.2</span><span>0.1</span>
+        </div>
+    </div>
+
+    <div class="card" style="overflow-x: auto;">
+        <div class="slider-label" style="margin-bottom: 14px;">Detailed Breakdown</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align: center;">Spd ×</th>
+                    <th>Gross</th>
+                    <th>Cost</th>
+                    <th>Net PnL</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <div id="nash-note" class="card" style="background: rgba(89, 217, 164, 0.05); border: 1px solid rgba(89, 217, 164, 0.15);">
+        <div id="nash-title" class="slider-label" style="color: var(--green); margin-bottom: 6px;">◈ Nash Equilibrium</div>
+        <div id="nash-text" style="font-size: 12px; color: var(--muted); lineHeight: 1.5;"></div>
+    </div>
+
+    <div class="formula">
+        Research(x) = 200k × ln(1+x) / ln(101)<br>
+        Scale(x) = 7 × x / 100<br>
+        PnL = Research × Scale × Speed − Budget
+    </div>
+</div>
+
+<script>
+    const LN101 = Math.log(101);
+    const BUDGET = 50000;
+    const SPEED_MULTS = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
+
+    const research = (r) => r <= 0 ? 0 : (200000 * Math.log(1 + r)) / LN101;
+    const scale = (s) => (7 * s) / 100;
+    const format = (n) => Math.abs(n) >= 1000 ? n.toLocaleString("en-US", { maximumFractionDigits: 0 }) : n.toFixed(1);
+
+    function update() {
+        const r = parseInt(document.getElementById('input-r').value);
+        const s = parseInt(document.getElementById('input-s').value);
+        const sp = parseInt(document.getElementById('input-sp').value);
+        const total = r + s + sp;
+        const overBudget = total > 100;
+
+        // UI Text Updates
+        document.getElementById('val-r').innerText = r + '%';
+        document.getElementById('val-s').innerText = s + '%';
+        document.getElementById('val-sp').innerText = sp + '%';
+        document.getElementById('total-pct').innerText = total + '%';
+
+        // Slider Visuals
+        ['r', 's', 'sp'].forEach(id => {
+            const val = parseInt(document.getElementById('input-' + id).value);
+            document.getElementById('fill-' + id).style.width = val + '%';
+            document.getElementById('thumb-' + id).style.left = `calc(${val}% - 10px)`;
+        });
+
+        const budgetUsed = (total / 100) * BUDGET;
+        document.getElementById('budget-used').innerText = format(budgetUsed);
+
+        // Warning State
+        const warningBox = document.getElementById('budget-warning');
+        if (overBudget) {
+            warningBox.style.background = "#ff4d4f11";
+            warningBox.style.borderColor = "#ff4d4f44";
+            document.getElementById('total-pct').style.color = "var(--red)";
+            document.getElementById('chart-card').style.opacity = "0.2";
+        } else {
+            warningBox.style.background = "#1a1d23";
+            warningBox.style.borderColor = "#22252d";
+            document.getElementById('total-pct').style.color = total === 100 ? "var(--green)" : "var(--text)";
+            document.getElementById('chart-card').style.opacity = "1";
+        }
+
+        const resVal = research(r);
+        const scVal = scale(s);
+        document.getElementById('stat-res').innerText = format(resVal);
+        document.getElementById('stat-scale').innerText = scVal.toFixed(2) + '×';
+
+        // PnL Logic
+        const results = SPEED_MULTS.map(m => {
+            const gross = resVal * scVal * m;
+            const cost = (total / 100) * BUDGET;
+            return { m, gross, cost, net: gross - cost };
+        });
+
+        const maxNet = Math.max(...results.map(x => Math.abs(x.net)), 1);
+
+        // Render Chart
+        const chart = document.getElementById('chart-bars');
+        chart.innerHTML = results.map(row => {
+            const pct = Math.max(0, Math.min(1, Math.abs(row.net) / maxNet));
+            const isNeg = row.net < 0;
+            const color = isNeg ? 'var(--red)' : 'var(--blue)';
+            return `
+                <div class="bar-wrapper">
+                    <div style="font-size: 10px; font-weight: 700; color: ${isNeg ? 'var(--red)' : 'var(--green)'}; margin-bottom: 4px;">
+                        ${row.net >= 0 ? '+' : ''}${(row.net/1000).toFixed(0)}k
+                    </div>
+                    <div class="bar" style="height: ${pct * 100}px; background: linear-gradient(180deg, ${color}22, ${color}aa); border-color: ${color}44;"></div>
+                </div>
+            `;
+        }).join('');
+
+        // Render Table
+        const bestNet = Math.max(...results.map(x => x.net));
+        const worstNet = Math.min(...results.map(x => x.net));
+
+        document.getElementById('table-body').innerHTML = results.map(row => {
+            const isBest = row.net === bestNet;
+            const isWorst = row.net === worstNet;
+            return `
+                <tr style="background: ${isBest ? '#59d9a408' : isWorst ? '#ff4d4f06' : 'transparent'}">
+                    <td style="text-align: center; color: var(--orange); font-weight: 700;">${row.m.toFixed(1)}</td>
+                    <td style="color: var(--muted)">${format(row.gross)}</td>
+                    <td style="color: var(--dim)">${format(row.cost)}</td>
+                    <td style="color: ${row.net >= 0 ? 'var(--green)' : 'var(--red)'}; font-weight: 700;">
+                        ${row.net >= 0 ? '+' : ''}${format(row.net)} ${isBest ? '▲' : isWorst ? '▼' : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        // Nash Note
+        const isOptimal = r === 23 && s === 77 && sp === 0;
+        const noteBox = document.getElementById('nash-note');
+        document.getElementById('nash-title').innerText = isOptimal ? "◈ Nash Equilibrium" : "◈ Analysis Note";
+        document.getElementById('nash-text').innerText = isOptimal
+            ? "This is the symmetric Nash equilibrium. If all players invest 0% in Speed, everyone ties for rank 1 and receives the 0.9 multiplier — yielding 618,097 net PnL."
+            : `The Nash equilibrium allocation is 23/77/0. Your current split ${r}/${s}/${sp} yields a best-case of +${format(bestNet)} and worst-case of ${format(worstNet)}.`;
+
+        noteBox.style.background = isOptimal ? "rgba(89, 217, 164, 0.05)" : "rgba(240, 165, 94, 0.05)";
+        noteBox.style.borderColor = isOptimal ? "rgba(89, 217, 164, 0.15)" : "rgba(240, 165, 94, 0.15)";
+    }
+
+    document.querySelectorAll('input').forEach(input => input.addEventListener('input', update));
+    update(); // Init
+</script>
+
+</body>
+</html>
